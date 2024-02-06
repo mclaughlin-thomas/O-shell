@@ -68,18 +68,29 @@ int main(void)
     int count = 0;   // count indicates how many commands have been processed
     // This is the main loop for the shell interface. It allows the shell to repeatedly show the prompt, get the user's command,
     // and execute that command. Then loop around and do the same steps over and over.
-    while (should_run)
-        {
-        //*** print your prompt here. It could be as simple as >
-        printf("(*)> ");
+    while (should_run){
+        //*********************************************
+        //        User I/O | Print Shell Prompt and Receive Input
+        //*********************************************
+        printf("(*)> "); //*** DO THIS: print your prompt here. It could be as simple as >
 
         fflush(stdout);
 
-        //*** DO THIS: Use fgets to read into command what the user typed in. Look up fgets if you don't know it.
+        fgets(command, MAX_LINE, stdin); //*** DO THIS: Use fgets to read into command what the user typed in. Look up fgets if you don't know it.
+        //*********************************************
+        //        User I/O | Print Shell Prompt and Receive Input
+        //*********************************************
 
-        fgets(command, MAX_LINE, stdin);
-        //fgets(command, command_length, stdin);
 
+
+        //--------------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------
+
+
+
+        //*********************************************
+        //        Pre-Tokenization | !! logic
+        //*********************************************
         if ( (strncmp(command,"!!",2) == 0) && (count == 0) )    //*** This is a string compare function. Look up the details.
         {
             fprintf(stderr, "No command history found\n");
@@ -89,6 +100,31 @@ int main(void)
         {
             count = 1;   //*** This is the shell's first command.
         }
+
+        if (strncmp(command,"!!",2) != 0)
+        {
+            /**
+             *** DO THIS: We have entered a command, so copy the command to the history string with strcpy.
+             */
+
+
+        }
+        else
+        {   //*** DO THIS:
+            // We want to carry out the !!, so we use the most recent command.
+            // Use printf to print the history string.
+            // Then use strcpy to copy the history string to command.
+            // The command will actually get executed below. See the next DO THIS for where we set this up for execution. 
+
+        }
+        //*********************************************
+        //        Pre-Tokenization | !! logic
+        //*********************************************
+
+
+
+
+        // Break command up into tokens which are placed in args. command_length will hold the number of tokens.
         
         
 
