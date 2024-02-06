@@ -91,29 +91,26 @@ int main(void)
         //*********************************************
         //        Pre-Tokenization | !! logic
         //*********************************************
-        if ( (strncmp(command,"!!",2) == 0) && (count == 0) )    //*** This is a string compare function. Look up the details.
-        {
+        if ( (strncmp(command,"!!",2) == 0) && (count == 0) ){
+            //*** This is a string compare function above
+
             fprintf(stderr, "No command history found\n");
             continue;
         }
-        else
-        {
+        else{
             count = 1;   //*** This is the shell's first command.
         }
-
-        if (strncmp(command,"!!",2) != 0)
-        {
-            /**
-             *** DO THIS: We have entered a command, so copy the command to the history string with strcpy.
-             */
-
-
+        //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (strncmp(command,"!!",2) != 0){
+            //This may be a real command that is not related to the !! process
+            
+            strcpy(history, command); // Copies value of command into history
         }
-        else
-        {   //*** DO THIS:
-            // We want to carry out the !!, so we use the most recent command.
-            // Use printf to print the history string.
-            // Then use strcpy to copy the history string to command.
+        else{
+            //This may be a legitamte !! request/command, so carry out the history as command
+
+            printf("%s", history);
+            strcpy(command,history);
             // The command will actually get executed below. See the next DO THIS for where we set this up for execution. 
 
         }
