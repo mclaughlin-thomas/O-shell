@@ -1,5 +1,8 @@
 /**
- * Simple shell interface program. Adapted from Operating System Concepts - Ninth Edition Copyright John Wiley & Sons - 2013
+ * Simple shell interface program.
+ *
+ * Operating System Concepts - Ninth Edition
+ * Copyright John Wiley & Sons - 2013
  */
 
 /* For the first half of the shell project, the part examined here in simple-shell.outline1, compile with:
@@ -77,6 +80,15 @@ int main(void)
         fgets(command, MAX_LINE, stdin);
         //fgets(command, command_length, stdin);
 
+        if ( (strncmp(command,"!!",2) == 0) && (count == 0) )    //*** This is a string compare function. Look up the details.
+        {
+            fprintf(stderr, "No command history found\n");
+            continue;
+        }
+        else
+        {
+            count = 1;   //*** This is the shell's first command.
+        }
         
         
 
