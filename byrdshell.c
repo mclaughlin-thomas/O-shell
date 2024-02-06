@@ -111,8 +111,22 @@ int main(void)
 
             printf("%s", history);
             strcpy(command,history);
-            // The command will actually get executed below. See the next DO THIS for where we set this up for execution. 
-
+            
+            // The command will actually get executed below. See the next DO THIS for where we set this up for execution.
+            /*              May want to cehckhistory just incase it is empty, although I think it is already covered from the very first if statement with count
+            
+                if (strlen(history) == 0) {
+                    // If there's no history yet, inform the user.
+                    printf("No commands in history.\n");
+                }
+                else {
+                    printf("Executing last command: %s", history);
+                    // Copy the history command back to command for execution.
+                    strcpy(command, history);
+                    // The actual execution logic for the command would follow here.
+                }
+            
+            */
         }
         //*********************************************
         //        Pre-Tokenization | !! logic
