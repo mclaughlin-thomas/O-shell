@@ -51,7 +51,7 @@ int main(void)
     int pipe_position;          // position of '|' character: what index is the | character at in the array
     int count = 0;   // count indicates how many commands have been processed
     int input_redirect_position;   // input/output redirection
-
+    
     char command[MAX_LINE];  // the command that was entered
     char history[MAX_LINE];  // the most recent command in history
     
@@ -77,7 +77,7 @@ int main(void)
         //*********************************************
         //        User I/O | Print Shell Prompt and Receive Input
         //*********************************************
-        printf("(*)> "); //*** DO THIS: print your prompt here. It could be as simple as >
+        printf("\n(*)> "); //*** DO THIS: print your prompt here. It could be as simple as >
 
         fflush(stdout);
 
@@ -247,6 +247,7 @@ int main(void)
             execvp(args[0], args);          //*** Here is where the new command is executed.
 
             fprintf(stderr, "Command not found\n");  //*** If the exec worked, this message will not be seen.
+            exit(EXIT_FAILURE);  // Terminate the child process to prevent it from continuing with the rest of the code.
             break;
         }
         else if (child > 0){
@@ -294,14 +295,14 @@ int check_redirect(char *args[], char op[], int len)
     int rv = 0;
     int i = 0;
 
-    for (i = 0; i < len; i++)
-    {
-        if ( strcmp(args[i],op) == 0)
-        {
+    while (i < len){
+        if (strcmp(args[i], op) == 0){
             rv = i;
-            break;
+            break; // Exit the loop if the condition is met
         }
+        i++; // Increment at the end of the loop body
     }
+
 
     return rv;
 }
@@ -404,6 +405,7 @@ void handle_redirect_input(char *args[], int pos)
         execvp(args[0], args);   //*** Run the command
 
         fprintf(stderr, "Command not found\n");   //*** This only prints if exec fails.
+        exit(EXIT_FAILURE);  // Terminate the child process to prevent it from continuing with the rest of the code.
     }
     else if (child > 0)
     {
@@ -454,6 +456,7 @@ void handle_redirect_output(char *args[], int pos)
 
         execvp(args[0], args);   //*** Run the command.
         fprintf(stderr, "Command not found\n");   //*** This only prints if exec fails.
+        exit(EXIT_FAILURE);  // Terminate the child process to prevent it from continuing with the rest of the code.
     }
     else if (child > 0)
     {
@@ -471,10 +474,14 @@ void handle_redirect_output(char *args[], int pos)
  *
  */
 int check_pipe(char *args[], int len) {
-    for (int i = 0; i < len; i++) {
+    int i = 0; // Initialization outside the loop
+
+    while (i < len) {
         if (strcmp(args[i], "|") == 0) {
-            return i;
+            return i; // Return the index if a match is found
         }
+        i++; // Increment at the end of the loop body
     }
-    return -1; // Pipe not found
+    return -1; // Return -1 if the loop completes without finding a match
+
 }
