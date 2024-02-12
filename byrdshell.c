@@ -234,7 +234,23 @@ int main(void)
         }
 
         if (strcmp(args[0],"!!") == 0){
-            strcpy(command, history); //*** DO THIS: Use strcpy to copy the last command from history and put it into the command variable.
+
+            if (HistoryCount > 0) {
+                // Fetch the most recent command from history
+                HistoryLookup(1, command); // 
+                printf("Executing: %s\n", command);
+            }
+            else {
+                fprintf(stderr, "No commands in history.\n");
+                continue; // Skip further processing
+            }
+            // **** NEW: Replace this strcpy with a call to HistoryLookup to find the last command
+            //**** and put it into the command string. There are no changes to make beyond this point
+            //**** if you successfully completed the first version of the simple shell, the one with
+            //**** only 1 item of history, though you would have to copy into here your code for the
+            //**** 2 places below that have only an outline. If you did not finish that code, now is
+            //**** the time to figure it out and put it in below.
+            //strcpy(command, history); //*** DO THIS: Use strcpy to copy the last command from history and put it into the command variable.
             command_length = parse_command(command, args); // may have to retokenize the command here if the execution logic banks on the args array post this point
         }
         if ( (redirect_position = check_redirect(args, ">", command_length)) > 0){
