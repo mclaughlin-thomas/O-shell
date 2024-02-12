@@ -18,19 +18,15 @@
 #include <string.h>
 #include <sys/wait.h>
 #include <sys/stat.h> // NOTE NOTE NOTE MAY NEED TO REMOVE, ADDED TO WORK ON MY MACHINE for the premade output function w S_IRUSR and S_IWUSR
-
-//* For the second part of this project, you will need to include the header file for the circular array. 
-//* Do so by putting this on the next line to uncomment it: #include "CircularArray.h"
-//* By doing this, a global variable with be added named HistoryData that has room for 10 strings of data.  
-//* However, for this first half of this project, just use one string, one item of history, labeled history down in main.
-//* Thus, in this project, there should be no use of the circular array.
+#include "CircularArray.h" // Here you need to include the header file for the circular array. Put this on the next line by iteslf:  #include "CircularArray.h"
+                           //* By doing so, a global variable with be added named HistoryData that has room for 10 strings of data.
 
 #define MAX_LINE    80 /* 80 chars per line, per command */
 
 #define READ_END    0
 #define WRITE_END   1
 
-//*** This will only be needed in the second half of the program, not this one:  int const HISTORY_ITEMS = 10;
+int const HISTORY_ITEMS = 10;   // Global constant for the max number of history items.
 
 // function prototypes
 int parse_command(char command[], char *args[]);
@@ -49,17 +45,19 @@ int main(void)
 
     int redirect_position;      // position of '>' character: what index is the > character at in the array    
     int pipe_position;          // position of '|' character: what index is the | character at in the array
+    int n;                      //***** NEW: declare an integer variable n. Its value will indicate that the desired history item is n items back.
+
     int count = 0;   // count indicates how many commands have been processed
     int input_redirect_position;   // input/output redirection
     
-    char command[MAX_LINE];  // the command that was entered
-    char history[MAX_LINE];  // the most recent command in history
+    char command[MAX_LINE]; // the command that was entered
+    //delete below
+    char history[MAX_LINE]; //***** NEW: delete this line since we do not want just one string of history and replace this
+                            //***** line with a call to the HistoryInit function defined in CircularArray.c.
+    //delete^ above
+    char str[MAX_LINE];   //**** NEW: use this variable below to hold the command obtained from history.
     
-
-    //*** Use a history holding a single string for the first half of the project. That's what the command
-    //*** string variable above is for. After you get this simple shell to work and are ready for the second
-    //*** half of the project, come back to this. Save a backup of your working simple-shell.c file 
-    //*** (for example by using:  cp simple-shell.c simple-shell.first). Then modify the
+    //*** Then modify the
     //*** original simple-shell.c to use the circular array to hold up to 10 items of history.
     //*** That would entail commenting off the declaration of the history string just
     //*** above and replacing it by the use of the functions HistoryInsert, HistoryLookup, and
@@ -68,6 +66,8 @@ int main(void)
     //*** CircularArray.c to see what these functions do and what parameters they take. The
     //*** HistoryInit function is only used once, right here before we hit the while loop
     //*** for the shell.  If you get stuck, contact Br. David.
+
+    HistoryInit(); // initializing the new history component
 
     while (should_run){
         // This is the main loop for the shell interface. It allows the shell to repeatedly show the prompt, get the user's command,
@@ -102,33 +102,99 @@ int main(void)
             fprintf(stderr, "No command history found\n");
             continue;
         }
+        else if ( (strncmp(command, "!-", 2) == 0) && (count == 0) ){
+            fprintf(stderr, "No command history found\n");
+            continue;
+        }
         else{
             count = 1;   //*** This is the shell's first command.
         }
-        if (strncmp(command,"!!",2) != 0){
-            //This may be a real command that is not related to the !! process
-            strcpy(history, command); // Copies value of command into history
+        //----------------------------------------------------------------------------------------------------------------------
+
+        //*** NEW: This section deals with the history, but does not execute the user's command.
+        if ((strncmp(command,"!!", 2) != 0) && (strncmp(command,"!-",2) != 0))
+        {
+            HistoryInsert(command);
+            /**
+             * We have entered a command so copy the command to history.
+             */
+            //**** NEW: Get rid of this strcpy and use the HistoryInsert function to put the command into the circular array.
+            //strcpy(history,command);
         }
-        else{
-            //This may be a legitamte !! request/command, so carry out the history as command
-            printf("%s", history);
-            strcpy(command,history);
+        else if (strncmp(command,"!!",2) == 0)
+        {
+            if (HistoryCount > 0) {
+                // Fetch the most recent command from history
+                HistoryLookup(1, command); // 
+                printf("Executing: %s\n", command);
+            }
+            else {
+                fprintf(stderr, "No commands in history.\n");
+                continue; // Skip further processing
+            }
+            // we use the most recent command
+            //**** NEW: Use the HistoryLookup function to find the most recent command, print it to the screen, copy it to the command
+            //**** variable so we can execute it below, and also use HistoryInsert to insert it into history, thus giving the
+            //**** correct history that we ran this command twice in a row.
+        }
+        else if (strncmp(command, "!-", 2) == 0)
+        {
+            //**** NEW: This code has been done for you. It removes the first two characters, the !- from the command string.
+            char temp[MAX_LINE];
+            int len, k, m, num;
+            len = strlen(command);
+            for (k = 2, m = 0; k < len; k++, m++)
+               temp[m] = command[k];
+            temp[len] = '\0';
+            //**** NEW: This code has been done for you. It removes the first two characters, the !- from the command string.
+
+            //printf("DEBUG: number after the !- is %s", temp); //**** NEW: temp now contains the command string without the !-. This should be an integer since the user used !-n.
+            num = atoi(temp); // Converts the string to an integer//**** NEW: Use the atoi function to convert temp to an integer, placing it into variable num.
             
-            // The command will actually get executed below. See the next DO THIS for where we set this up for execution.
-            /*              May want to cehckhistory just incase it is empty, although I think it is already covered from the very first if statement with count
-            
-                if (strlen(history) == 0) {
-                    // If there's no history yet, inform the user.
-                    printf("No commands in history.\n");
+            //**** NEW: Use HistoryLookup with num to look up the item in history num items back.
+            //**** Then print that history item on the screen, copy it into the command variable so that we can execute it below,
+            //**** and use HistoryInsert to get this item into the history circular array, much like was done above.
+            //**** Thus !-1 would execute the last command, the same as !!, while !-2 would run the command 2 back in history,
+            //**** !-3 would run the command 3 back in history, etc.
+
+            if (num > 0 && num <= HistoryCount){ // Check if num is within the valid range
+                // Use HistoryLookup to get the command from history
+                HistoryLookup(num, command); // Adjust if your HistoryLookup expects different parameters
+
+                // Print the command that is being executed
+                printf("Executing: %s\n", command);
+
+                // Re-insert the fetched command into history, if desired
+                HistoryInsert(command);
+
+                // Tokenize and execute the command as per your shell's logic
+                // This might involve re-tokenizing command into args and then calling execvp or similar
+                // Example: command_length = parse_command(command, args); followed by execution logic
+            }
+            else{
+                fprintf(stderr, "No such command in history.\n");
+            }
+
+
+        }
+
+        if (strncmp(command, "history", 7) == 0){
+            // Check if there are any items in the history to display
+            if (HistoryCount == 0){
+                printf("No commands in history.\n");
+            }
+            else{
+                // Loop through all items in history
+                for (int k = 1; k <= HistoryCount; k++){
+                    char historyItem[STRINGMAX]; // Assuming STRINGMAX is the length of your commands
+                    HistoryLookup(k, historyItem); // Assuming this function populates historyItem with the kth command
+
+                    // Print the history item number and the command
+                    // Adjust the print format if you store history such that the most recent command is at the highest index
+                    printf("%d: %s\n", k, historyItem);
                 }
-                else {
-                    printf("Executing last command: %s", history);
-                    // Copy the history command back to command for execution.
-                    strcpy(command, history);
-                    // The actual execution logic for the command would follow here.
-                }
-            
-            */
+            }
+            continue; // Skip further processing and continue with the next iteration of the loop
         }
         //*********************************************
         //        Pre-Tokenization | !! Logic
